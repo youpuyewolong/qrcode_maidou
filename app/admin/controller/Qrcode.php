@@ -78,25 +78,17 @@ class Qrcode
 
     public function edit()
     {
-        $userid=Request::param("userid",'','filter_sql');
-        if(!is_numeric($userid)){
-            caozha_error("参数错误","",1);
-        }
-        $member=MemberModel::where("userid","=",$userid)->findOrEmpty();
-        if ($member->isEmpty()) {
-            caozha_error("[ID:".$userid."]用户不存在。","",1);
-        }
+        $userid=Request::param("qid",'','filter_sql');
 
-        $member_groups=MemberGroupModel::order('listorder', 'desc')->select()->toArray();
-        $member_isrn = Config::get("app.caozha_member_isrn");
+        $member=\app\admin\model\Qrcode::where("qid","=",$userid)->findOrEmpty();
+
         View::assign([
-            'member_groups'  => $member_groups,
-            'member_isrn'  => $member_isrn,
+            'type'  => [['key'=>'1','value'=>'图片'],['key'=>'2','value'=>'视频'],['key'=>'3','value'=>'文件']],
             'member'  => $member,
         ]);
 
         // 模板输出
-        return View::fetch('member/edit');
+        return View::fetch('qrcode/edit');
     }
 
     public function editSave()

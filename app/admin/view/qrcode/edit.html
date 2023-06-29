@@ -29,126 +29,51 @@
 <form class="layui-form layuimini-form">
 
     <div class="layui-form-item">
-        <label class="layui-form-label required">用户组</label>
+        <label class="layui-form-label required">类型</label>
         <div class="layui-input-block">
-            <select name="groupid" style="width:350px;" lay-filter="groupid" lay-search="" lay-verify="required" lay-reqtext="请选择用户组">
+            <select name="type" style="width:350px;" lay-filter="value" lay-search="" lay-verify="required" lay-reqtext="请选择类型">
                 <option value=""></option>
-                {foreach $member_groups as $key=>$vo }
-                <option value="{$vo.groupid}"{if $vo.groupid==$member.groupid} selected{/if}>{$vo.group_name}</option>
+                {foreach $type as $key=>$vo }
+                    <option value="{$vo.key}">{$vo.value}</option>
                 {/foreach}
             </select>
         </div>
     </div>
 
     <div class="layui-form-item">
-        <label class="layui-form-label required">用户名</label>
+        <label class="layui-form-label required">标题</label>
         <div class="layui-input-block">
-            <input type="text" name="username" lay-verify="required" lay-reqtext="请输入用户名" placeholder="请输入用户名" value="{$member.username}"
+            <input type="text" name="title" lay-verify="required" lay-reqtext="请输入标题" placeholder="请输入标题" value=""
                    class="layui-input">
         </div>
     </div>
 
     <div class="layui-form-item">
-        <label class="layui-form-label">密码</label>
-        <div class="layui-input-block">
-            <input type="password" name="password" placeholder="留空则不修改" value=""
-                   class="layui-input">
-        </div>
-    </div>
-
-    <div class="layui-form-item">
-        <label class="layui-form-label">昵称</label>
-        <div class="layui-input-block">
-            <input type="text" name="nickname" placeholder="请输入昵称" value="{$member.nickname}"
-                   class="layui-input">
-        </div>
-    </div>
-
-    <div class="layui-form-item">
-        <label class="layui-form-label">头像</label>
+        <label class="layui-form-label">图片</label>
         <div class="layui-input-block">
             <!--直接调用ueditor上传框-->
             <script type="text/plain" id="upload_ue" style="display: none"></script>
             <script src="__CAOZHA-STATIC__/ueditor/cz.upload.image.js"></script>
 
-            <input type="text" name="avatar" lay-verify="" lay-reqtext="" placeholder="" value="{$member.avatar}" id="pic_id" class="layui-input cz-float-left" style="width: 50%;margin-right: 10px;"> <button type="button" class="layui-btn layui-btn-normal cz-float-left" onclick="upImage('pic_id');">上传</button> <button type="button" class="layui-btn layui-btn-warm cz-float-left" onclick="img_preview('pic_id');">预览</button>
+            <input type="text" name="image" lay-verify="" lay-reqtext="" placeholder="" value="{$member.image}" id="pic_id" class="layui-input cz-float-left" style="width: 50%;margin-right: 10px;"> <button type="button" class="layui-btn layui-btn-normal cz-float-left" onclick="upImage('pic_id');">上传</button> <button type="button" class="layui-btn layui-btn-warm cz-float-left" onclick="img_preview('pic_id');">预览</button>
         </div>
     </div>
 
     <div class="layui-form-item">
-        <label class="layui-form-label">邮箱</label>
+        <label class="layui-form-label">视频</label>
         <div class="layui-input-block">
-            <input type="text" name="email" placeholder="请输入邮箱" value="{$member.email}" class="layui-input">
+            <!--直接调用ueditor上传框-->
+            <script type="text/plain" id="upload_ue" style="display: none"></script>
+            <input type="text" name="video" lay-verify="" lay-reqtext="" placeholder="" value="{$member.video}" id="video_id" class="layui-input cz-float-left" style="width: 50%;margin-right: 10px;"> <button type="button" class="layui-btn layui-btn-normal cz-float-left" onclick="upFiles('video_id');">上传</button> <button type="button" class="layui-btn layui-btn-warm cz-float-left" onclick="img_preview('video_id');">预览</button>
         </div>
     </div>
 
     <div class="layui-form-item">
-        <label class="layui-form-label">QQ</label>
+        <label class="layui-form-label">文件</label>
         <div class="layui-input-block">
-            <input type="text" name="qq" placeholder="" value="{$member.qq}" class="layui-input">
-        </div>
-    </div>
-
-    <div class="layui-form-item">
-        <label class="layui-form-label">手机</label>
-        <div class="layui-input-block">
-            <input type="text" name="mobile" placeholder="" value="{$member.mobile}" class="layui-input">
-        </div>
-    </div>
-
-    <div class="layui-form-item">
-        <label class="layui-form-label">微信</label>
-        <div class="layui-input-block">
-            <input type="text" name="weixin" placeholder="" value="{$member.weixin}" class="layui-input">
-        </div>
-    </div>
-
-    <div class="layui-form-item">
-        <label class="layui-form-label">住址</label>
-        <div class="layui-input-block">
-            <input type="text" name="address" placeholder="请输入住址" value="{$member.address}" class="layui-input">
-        </div>
-    </div>
-
-    <div class="layui-form-item layui-form-text">
-        <label class="layui-form-label">备注</label>
-        <div class="layui-input-block">
-            <textarea name="remarks" class="layui-textarea" placeholder="">{$member.remarks}</textarea>
-        </div>
-    </div>
-
-    <div class="layui-form-item">
-        <label class="layui-form-label">是否锁定</label>
-        <div class="layui-input-block">
-            <input type="checkbox" value="1" {if $member.islock==1}checked=""{/if} name="islock" lay-skin="switch" lay-filter="switchTest" lay-text="是|否">
-            <div class="layui-unselect layui-form-switch layui-form-onswitch" lay-skin="_switch"><em>是</em><i></i>
-            </div>
-        </div>
-    </div>
-
-    <div class="layui-form-item">
-        <label class="layui-form-label required">实名状态</label>
-        <div class="layui-input-block">
-            <select name="isrn" lay-verify="required" lay-reqtext="请选择实名状态">
-                <option value=""></option>
-                {foreach $member_isrn as $key=>$vo }
-                <option value="{$key}"{if $key==$member.isrn} selected{/if}>{$vo}</option>
-                {/foreach}
-            </select>
-        </div>
-    </div>
-
-    <div class="layui-form-item">
-        <label class="layui-form-label">真实姓名</label>
-        <div class="layui-input-block">
-            <input type="text" name="realname" placeholder="" value="{$member.realname}" class="layui-input">
-        </div>
-    </div>
-
-    <div class="layui-form-item">
-        <label class="layui-form-label">身份证号</label>
-        <div class="layui-input-block">
-            <input type="text" name="id_card" placeholder="" value="{$member.id_card}" class="layui-input">
+            <!--直接调用ueditor上传框-->
+            <script type="text/plain" id="upload_ue" style="display: none"></script>
+            <input type="text" name="file" lay-verify="" lay-reqtext="" placeholder="" value="{$member.file}" id="file_id" class="layui-input cz-float-left" style="width: 50%;margin-right: 10px;"> <button type="button" class="layui-btn layui-btn-normal cz-float-left" onclick="upFiles('file_id');">上传</button> <button type="button" class="layui-btn layui-btn-warm cz-float-left" onclick="img_preview('file_id');">预览</button>
         </div>
     </div>
 
@@ -158,7 +83,7 @@
             <button type="reset" class="layui-btn layui-btn-primary caozha-reset">重置</button>
         </div>
     </div>
-    <input type="hidden" name="userid" value="{$member.userid}">
+    <input type="hidden" name="qid" value="{$member.qid}">
 
 </form>
 <script>
@@ -174,7 +99,7 @@
 
             $.ajax({
                 type: "post",
-                url: '{:url(\'admin/member/editSave\')}',
+                url: '{:url(\'admin/qrcode/editSave\')}',
                 data: data.field,
                 dataType: "json",
                 async: false,
