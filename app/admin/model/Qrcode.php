@@ -11,6 +11,8 @@ namespace app\admin\model;
 use think\Model;
 class Qrcode extends Model
 {
+
+    protected $pk = 'qid';
    // protected $connection="mysql";
 
 
