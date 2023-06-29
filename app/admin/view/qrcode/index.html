@@ -28,7 +28,7 @@
 
                             <div class="layui-input-inline cz-select">
                                 <select class="layui-inline" name="type">
-                                    <option value="">二维码类型</option>
+                                    <option value="">类型</option>
                                     {foreach $type as $key=>$vo }
                                     <option value="{$key}">{$vo}</option>
                                     {/foreach}
@@ -91,10 +91,10 @@
             size: "",//sm （小尺寸）       lg （大尺寸）
             cols: [[
                 {type: "checkbox", width: 40, align: "center"},
-                {field: 'qid', width: 75, title: 'ID', sort: true},
-                {field: 'title', minWidth: 150, align: "center",title: '标题'},
-                {field: 'type', width: 120,  align: "center",title: '类型'},
-                {title: '操作', width: 130, toolbar: '#currentTableBar', align: "center", fixed: "right"}
+                {field: 'qid', width: 50, title: 'ID', sort: true},
+                {field: 'title', minWidth: 100, align: "center",title: '标题'},
+                {field: 'type', width: 100,  align: "center",title: '类型'},
+                {title: '操作', width: 200, toolbar: '#currentTableBar', align: "center", fixed: "right"}
             ]],
             limits: [5, 10, 15, 20, 25, 50, 100, 200, 500, 1000],
             limit: {$member_limit},
@@ -111,7 +111,7 @@
                 var checkStatus = table.checkStatus('currentTableId')
                     , data = checkStatus.data;
                 var userid_arr = $.map(data, function (d) {
-                    return d.userid;
+                    return d.qid;
                 });
                 var userid_str = userid_arr.join(",");//转为字符串
 
@@ -138,12 +138,12 @@
                     $.ajax({
                         type: "post",
                         url: '{:url(\'admin/member/delete\')}',
-                        data: {userid: userid_str},
+                        data: {qid: userid_str},
                         dataType: "json",
                         async: false,
                         success: function (del_data) {
                             if (del_data.code == 1) {
-                                layer.msg('删除成功，共删除' + del_data.del_num + '个用户！', {icon: 1});
+                                layer.msg('删除成功，共删除' + del_data.del_num + '个二维码！', {icon: 1});
                                 //执行删除后重载
                                 table.reload('currentTableId', {
                                     page: {
@@ -244,7 +244,7 @@
                 maxmin: true,
                 shadeClose: true,
                 area: ['60%', '50%'],
-                content: '{:url(\'admin/qrcode/view\')}?userid='+member_data.qid,
+                content: '{:url(\'admin/qrcode/view\')}?qid='+member_data.qid,
             });
 
             return false;
@@ -267,7 +267,7 @@
                     btnAlign: 'c',
                     resize:true,//允许拉伸
                     area: ['60%', '95%'],
-                    content: '{:url(\'admin/member/edit\')}?userid='+member_data.userid,
+                    content: '{:url(\'admin/qrcode/edit\')}?qid='+member_data.qid,
                     yes: function(index, layero){
                         //按钮【按钮一】的回调
 

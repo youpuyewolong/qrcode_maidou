@@ -35,7 +35,7 @@ class Qrcode
         }
 
         View::assign([
-            'type' => array(1 => "图片",2 => "视频",3 => "文件"),
+            'type' => array(1 => "图片",2 => "视频",3 => "文件",'4'=>'链接'),
             'member_limit'  => $limit,
         ]);
         // 模板输出
@@ -46,7 +46,7 @@ class Qrcode
     {
 
         View::assign([
-            'type'  => [['key'=>'1','value'=>'图片'],['key'=>'2','value'=>'视频'],['key'=>'3','value'=>'文件']],
+            'type'  => [['key'=>'1','value'=>'图片'],['key'=>'2','value'=>'视频'],['key'=>'3','value'=>'文件'],['key'=>'4','value'=>'链接']],
         ]);
         // 模板输出
         return View::fetch('qrcode/add');
@@ -83,7 +83,7 @@ class Qrcode
         $member=\app\admin\model\Qrcode::where("qid","=",$userid)->findOrEmpty();
 
         View::assign([
-            'type'  => [['key'=>'1','value'=>'图片'],['key'=>'2','value'=>'视频'],['key'=>'3','value'=>'文件']],
+            'type'  => [['key'=>'1','value'=>'图片'],['key'=>'2','value'=>'视频'],['key'=>'3','value'=>'文件'],['key'=>'4','value'=>'链接']],
             'member'  => $member,
         ]);
 
@@ -98,24 +98,20 @@ class Qrcode
             return result_json(0,"error");
         }
         $update_data=Request::param('','','filter_sql');//过滤注入
-        if(!is_numeric($update_data["userid"])){
+        if(!is_numeric($update_data["qid"])){
             caozha_error("参数错误","",1);
         }
 
-        $update_data["islock"]=isset($update_data["islock"])?$update_data["islock"]:0;
-        $update_data["password"]=isset($update_data["password"])?$update_data["password"]:false;
-        $update_field=['groupid','username','nickname','avatar','email','qq','mobile','weixin','address','remarks','islock','isrn','realname','id_card'];//允许字段
-        if($update_data["password"]){$update_data["password"]=md5_plus($update_data["password"]);$update_field[]="password";}
+        $member=\app\admin\model\Qrcode::where("qid","=",$update_data["qid"])->findOrEmpty();
 
-        $member=MemberModel::where("userid","=",$update_data["userid"])->findOrEmpty();
         if ($member->isEmpty()) {//数据不存在
             $update_result=false;
         }else{
-            $update_result=$member->allowField($update_field)->save($update_data);
+            $update_result=$member->save($update_data);
         }
 
         if($update_result){
-            write_syslog(array("log_content"=>"修改用户，ID：".$update_data["userid"]));//记录系统日志
+            write_syslog(array("log_content"=>"修改用户，ID：".$update_data["qid"]));//记录系统日志
             $list=array("code"=>1,"update_num"=>1,"msg"=>"保存成功");
         }else{
             $list=array("code"=>0,"update_num"=>0,"msg"=>"保存失败");
@@ -126,7 +122,7 @@ class Qrcode
     public function view()
     {
         $qid=Request::param("qid",'','filter_sql');
-        $data = 'otpauth://totp/test?secret=B3JX4VCVJDVNXNZ5&issuer=chillerlan.net';
+        $data = 'http://'.$_SERVER['HTTP_HOST'].'/index/index/detail?qid='.$qid;
 
         // quick and simple:
         $qrcode_url = (new \chillerlan\QRCode\QRCode)->render($data);
@@ -152,7 +148,7 @@ class Qrcode
         $list=Db::name('qrcode');
 
         $list=$list->withAttr('type', function($value) {
-            $type = [1=>'图片',2=>'视频','3'=>'附件'];
+            $type = [1=>'图片',2=>'视频','3'=>'附件','4'=>'链接'];
             return $type[$value];
         })->order('qid', 'desc');
 
@@ -162,7 +158,11 @@ class Qrcode
                 $list=$list->where("title","like","%".$action["keyword"]."%");
             }
         }
-
+        if(isset($action["type"])){
+            if($action["type"]!=""){
+                $list=$list->where("type","=",$action["type"]);
+            }
+        }
         $list=$list->paginate([
             'list_rows'=> $limit,//每页数量
             'page' => $page,//当前页
@@ -174,13 +174,13 @@ class Qrcode
     public function delete()//删除数据
     {
         //执行删除
-        $userid=Request::param("userid",'','filter_sql');
+        $userid=Request::param("qid",'','filter_sql');
         $del_num=0;
         if($userid){
-            $del_num=MemberModel::where("userid","in",$userid)->delete();
+            $del_num=\app\admin\model\Qrcode::where("qid","in",$userid)->delete();
         }
         if($del_num>0){
-            write_syslog(array("log_content"=>"删除用户(ID)：".$userid));//记录系统日志
+            write_syslog(array("log_content"=>"删除二维码(ID)：".$userid));//记录系统日志
             $list=array("code"=>1,"del_num"=>$del_num);
         }else{
             $list=array("code"=>0,"del_num"=>0);
