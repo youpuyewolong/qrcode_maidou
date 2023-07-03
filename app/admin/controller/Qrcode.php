@@ -122,7 +122,7 @@ class Qrcode
     public function view()
     {
         $qid=Request::param("qid",'','filter_sql');
-        $data = 'http://'.$_SERVER['HTTP_HOST'].'/index/index/detail?qid='.$qid;
+        $data = 'http://'.$_SERVER['HTTP_HOST'].'/qrcode.html?qid='.$qid;
 
         // quick and simple:
         $qrcode_url = (new \chillerlan\QRCode\QRCode)->render($data);

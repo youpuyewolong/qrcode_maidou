@@ -30,7 +30,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label required">类型</label>
         <div class="layui-input-block">
-            <select name="type" style="width:350px;" lay-filter="value" lay-search="" lay-verify="required" lay-reqtext="请选择类型">
+            <select name="type" style="width:350px;" lay-filter="type" lay-search="" lay-verify="required" lay-reqtext="请选择类型">
                 <option value=""></option>
                 {foreach $type as $key=>$vo }
                 <option value="{$vo.key}">{$vo.value}</option>
@@ -47,15 +47,15 @@
         </div>
     </div>
 
-    <div class="layui-form-item">
-        <label class="layui-form-label required">链接</label>
+    <div class="layui-form-item" id="id_url">
+        <label class="layui-form-label">链接</label>
         <div class="layui-input-block">
             <input type="text" name="url" lay-verify="" lay-reqtext="请输入链接" placeholder="请输入链接" value=""
                    class="layui-input">
         </div>
     </div>
 
-    <div class="layui-form-item">
+    <div class="layui-form-item" id="id_image">
     <label class="layui-form-label">图片</label>
     <div class="layui-input-block">
         <!--直接调用ueditor上传框-->
@@ -66,7 +66,7 @@
     </div>
     </div>
 
-    <div class="layui-form-item">
+    <div class="layui-form-item" id="id_video">
         <label class="layui-form-label">视频</label>
         <div class="layui-input-block">
             <!--直接调用ueditor上传框-->
@@ -75,7 +75,7 @@
         </div>
     </div>
 
-    <div class="layui-form-item">
+    <div class="layui-form-item" id="id_file">
         <label class="layui-form-label">文件</label>
         <div class="layui-input-block">
             <!--直接调用ueditor上传框-->
@@ -93,6 +93,10 @@
 
 </form>
 <script>
+    $('#id_url').hide();
+    $('#id_image').hide();
+    $('#id_video').hide();
+    $('#id_file').hide();
     layui.use(['form'], function () {
 
         var form = layui.form,
@@ -131,10 +135,27 @@
         });
 
         //解决下拉框出现&nbap乱码
-        form.on('select(groupid)', function(data){
-            let selectText=data.elem[data.elem.selectedIndex].text;//得到被选中的文本值
-            selectText=selectText.trim();//去掉&nbap
-            data.elem[data.elem.selectedIndex].text=selectText;//覆盖原文本值
+        form.on('select(type)', function(data){
+            $('#id_url').hide();
+            $('#id_image').hide();
+            $('#id_video').hide();
+            $('#id_file').hide();
+
+            if(data.value == 1){
+                $('#id_image').show();
+            }else if(data.value == 2){
+                $('#id_video').show();
+            }else if(data.value == 3){
+                $('#id_file').show();
+            }else if(data.value == 4){
+                $('#id_url').show();
+            }else{
+
+            }
+
+            // let selectText=data.elem[data.elem.selectedIndex].text;//得到被选中的文本值
+            // selectText=selectText.trim();//去掉&nbap
+            // data.elem[data.elem.selectedIndex].text=selectText;//覆盖原文本值
         });
 
     });
