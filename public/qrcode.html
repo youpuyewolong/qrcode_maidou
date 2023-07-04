@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.byted-static.com/xgplayer/3.0.0-next.42/dist/index.min.css">
+    <title>Document</title>
+    <style>
+        .img {
+           width: 100%;
+           margin-top: 200px;
+        }
+        #video-box{
+        width:100% !important;
+        margin-top:150px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- 显示图片 -->
+    <img src="" alt="" class="img">
+
+    <!-- 显示视频 -->
+    <div id="video-box"></div>
+
+    <!-- 预览文件 -->
+    <!--<button class="wordBtn"></button>-->
+
+    <!-- 链接 -->
+    <!--<a class="linkBtn" href=" "></a>-->
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.js"></script>
+    <script src="https://unpkg.byted-static.com/xgplayer/3.0.1/dist/index.min.js" charset="utf-8"></script>
+    <script src="https://unpkg.byted-static.com/xgplayer-mp4/3.0.1/dist/index.min.js" charset="utf-8"></script>
+    <script>
+
+        $(function () {
+            var imgSrc = "";
+            var fileSrc = "";
+            var videoSrc = "";
+            var url = "";
+            //var httpUrl="http://119.96.133.34:9996/index/index/detail?qid=7";
+            var httpUrl=window.location.href;
+            console.log(httpUrl);
+            var firstArr=httpUrl.split('/');
+           //获取的域名
+            var stuff=firstArr[0]+'//'+firstArr[2];
+           var qidArr=firstArr[firstArr.length-1].split('=');
+           //qid的值
+           var qid=qidArr[1];
+            $.get(stuff+"/index/index/detail?qid="+qid, function (data, status) {
+                if (status == 'success') {
+                    console.log(data);
+                    if (data.type == 1) {
+                        //图片
+                        if(data.image.indexOf("//") != -1){
+                            imgSrc = data.image;
+                        }else{
+                            imgSrc = stuff + data.image;
+                        }
+                        $('.img').attr('src', imgSrc);
+                        $('#video-box').hide();
+                       
+                    } else if (data.type == 3) {
+                        //预览文件
+                        fileSrc = stuff + data.file;
+                        $('.wordBtn').html(data.title);
+                        $('.img').hide();
+                        $('#video-box').hide();
+                       
+                        let file = fileSrc;
+                            let lastIndex = file.lastIndexOf(".");
+                            console.log(lastIndex);
+                            let suffix = file.substring(lastIndex + 1);
+                            console.log(suffix);
+                            if (suffix == 'doc' || suffix == 'docx' || suffix == 'ppt' || suffix == 'xls' || suffix == 'xlsx') {
+                                let fileUrl = encodeURIComponent(file);
+                                //使用Office Web查看器
+                                //let officeUrl = 'http://view.officeapps.live.com/op/view.aspx?src='+fileUrl;
+                                //XDOC文档预览云服务
+                                let officeUrl = 'https://view.xdocin.com/view?src=' + fileUrl;
+                                window.location=officeUrl;
+                            } else {
+                                //其他文件格式比如pdf、图片、html
+                                alert('此文件类型不支持');
+                            }
+                        
+                    } else if (data.type == 2) {
+                        //视频
+
+                        if(data.video.indexOf("//") != -1){
+                            videoSrc = data.video;
+                        }else{
+                            videoSrc = stuff + data.video;
+                        }
+                        $('.img').hide();
+                       
+                        const config = {
+                            "id": "video-box",
+                            "url": videoSrc,
+                            "playsinline": true,
+                            "plugins": [],
+                            autoplay: true
+                        }
+                        var player = new Player(config);
+                    } else if (data.type == 4) {
+                        //链接
+                        url =data.url;
+                        $('.img').hide();
+                        $('#video-box').hide();
+                        
+                         window.location=url;
+                         
+                    
+                    }
+
+                }
+
+            });
+        })
+
+
+
+
+
+    </script>
+
+</body>
+
+</html>
