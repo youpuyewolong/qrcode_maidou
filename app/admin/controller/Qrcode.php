@@ -10,6 +10,9 @@
 namespace app\admin\controller;
 
 
+use chillerlan\QRCode\Output\QRCodeOutputException;
+use chillerlan\QRCode\Output\QRImage;
+use chillerlan\QRCode\QROptions;
 use think\facade\Config;
 use think\facade\Db;
 use think\facade\Request;
@@ -125,7 +128,23 @@ class Qrcode
         $data = 'http://'.$_SERVER['HTTP_HOST'].'/qrcode.html?qid='.$qid;
 
         // quick and simple:
-        $qrcode_url = (new \chillerlan\QRCode\QRCode)->render($data);
+        $options = new LogoOptions;
+
+        $options->version          = 7;
+        $options->eccLevel         = \chillerlan\QRCode\QRCode::ECC_H;
+        $options->imageBase64      = false;
+        $options->logoSpaceWidth   = 13;
+        $options->logoSpaceHeight  = 13;
+        $options->scale            = 5;
+        $options->imageTransparent = false;
+        $options->imageBase64 = true;
+
+        header('Content-type: image/png');
+
+        $qrOutputInterface = new QRImageWithLogo($options, (new QRCode($options))->getMatrix($data));
+
+        $qrcode_url = $qrOutputInterface->dump(null, './logo.png');
+
         View::assign([
             'qrcode_url'  => $qrcode_url
         ]);
@@ -187,6 +206,70 @@ class Qrcode
         }
 
         return json($list);
+    }
+
+}
+
+class LogoOptions extends QROptions{
+    // size in QR modules, multiply with QROptions::$scale for pixel size
+    public int $logoSpaceWidth;
+    public int $logoSpaceHeight;
+}
+
+class QRImageWithLogo extends QRImage{
+
+    /**
+     * @param string|null $file
+     * @param string|null $logo
+     *
+     * @return string
+     * @throws \chillerlan\QRCode\Output\QRCodeOutputException
+     */
+    public function dump(string $file = null, string $logo = null):string{
+        // set returnResource to true to skip further processing for now
+        $this->options->returnResource = true;
+        // of course you could accept other formats too (such as resource or Imagick)
+        // i'm not checking for the file type either for simplicity reasons (assuming PNG)
+        if(!is_file($logo) || !is_readable($logo)){
+            throw new QRCodeOutputException('invalid logo');
+        }
+
+        $this->matrix->setLogoSpace(
+            $this->options->logoSpaceWidth,
+            $this->options->logoSpaceHeight
+        // not utilizing the position here
+        );
+
+        // there's no need to save the result of dump() into $this->image here
+        parent::dump($file);
+
+        $im = imagecreatefrompng($logo);
+
+        // get logo image size
+        $w = imagesx($im);
+        $h = imagesy($im);
+
+        // set new logo size, leave a border of 1 module (no proportional resize/centering)
+        $lw = ($this->options->logoSpaceWidth - 2) * $this->options->scale;
+        $lh = ($this->options->logoSpaceHeight - 2) * $this->options->scale;
+
+        // get the qrcode size
+        $ql = $this->matrix->size() * $this->options->scale;
+
+        // scale the logo and copy it over. done!
+        imagecopyresampled($this->image, $im, ($ql - $lw) / 2, ($ql - $lh) / 2, 0, 0, $lw, $lh, $w, $h);
+
+        $imageData = $this->dumpImage();
+
+        if($file !== null){
+            $this->saveToFile($imageData, $file);
+        }
+
+        if($this->options->imageBase64){
+            $imageData = 'data:image/'.$this->options->outputType.';base64,'.base64_encode($imageData);
+        }
+
+        return $imageData;
     }
 
 }
